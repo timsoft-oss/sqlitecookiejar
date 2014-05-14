@@ -59,7 +59,7 @@ class SQLiteCookieJar(FileCookieJar):
             self._save_cookie(cookie)
 
 
-    def flush(self):
+    def _flush(self):
         """
         Internal method that flushes the database. Cookies that have expired
         will be deleted.
@@ -127,14 +127,14 @@ class SQLiteCookieJar(FileCookieJar):
         Overriding the default load method.
 
         Please note that old cookies are flushed from the databaase through
-        :meth:`flush`.
+        :meth:`_flush`.
 
         :param filename: MUST be None. There is only one file per CookieJar.
         :param ignore_discard: MUST be False. Session cookies are not saved.
         :param ignore_expires: MUST be False. Expired cookies are evicted.
         """
         self._check_save_load_params(filename, ignore_discard, ignore_expires)
-        self.flush()
+        self._flush()
         self._really_load()
 
 
@@ -183,16 +183,16 @@ class SQLiteCookieJar(FileCookieJar):
         :param ignore_expires: MUST be False. Expired cookies are evicted.
         """
         if filename is not None:
-            raise NotImplementedError("Not implemented : there is only one file per jar.")
+            raise NotImplementedError("There is only one file per jar.")
 
         if ignore_discard:
-            raise NotImplementedError("Not implemented : this implementation respects RFC6265 "
-                                      "in regard to session cookies. They cannot be stored.")
+            raise NotImplementedError("This implementation respects RFC6265 in regard to "
+                                      "session cookies. They cannot be stored.")
 
         if ignore_expires:
-            raise NotImplementedError("Not implemented : this implementation respects RFC6265 "
-                                      "in regard to cookie expiry. No expired cookie can be "
-                                      "kept in the jar. That's unhealthy, anyway.")
+            raise NotImplementedError("This implementation respects RFC6265 in regard to "
+                                      "cookie expiry. No expired cookie can be kept in "
+                                      "the jar. That's unhealthy, anyway.")
 
     def _check_and_create_table(self):
         """
@@ -208,6 +208,9 @@ class SQLiteCookieJar(FileCookieJar):
             the wrong database, raise an exception.
         4.  The database has more than one table. It's the wrong database,
             raise an exception.
+            
+        Note : If the file is not a database, sqlite3 will crash with and
+        raise a DatabaseError.
         """
         with sqlite3.connect(self.filename) as con:
             res = con.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
