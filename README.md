@@ -53,9 +53,12 @@ Notes
 -   Expired cookies are flushed on every load.
 -   This implementation won't save session cookies or expired cookies. Parameters `ignore_discard` and `ignore_expires` cannot be set to *True*. This is not fully compatible with Python's [cookielib.FilecookieJar] but rather follows RFC 6265, at least on this specific aspect.
 
-
+License
+-------
+This module is released under the [Apache v2 license].
 
   [cookielib.FilecookieJar]: https://docs.python.org/2/library/cookielib.html#cookielib.FileCookieJar
   [cookielib]: https://docs.python.org/2/library/cookielib.html
   [RFC 6265]: http://tools.ietf.org/html/rfc6265
   [requests]: http://docs.python-requests.org/en/latest/
+  [Apache v2 license]: http://www.apache.org/licenses/LICENSE-2.0
