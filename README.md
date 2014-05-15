@@ -49,7 +49,7 @@ The module works like a charm with Kenneth Reitz' [requests].
 Notes
 -----
 -   The nature of the file at `filename` is discovered automatically. If the given file is not a database or if the database doesn't match the standard format, the constructor will raise an exception.
--   This module is not compatible with the specific implementation of cookies in modern cookies, as the column names differ.
+-   This module is not compatible with the specific implementation of cookies in modern browsers, as the column names differ, and it lacks some columns.
 -   Expired cookies are flushed on every load.
 -   This implementation won't save session cookies or expired cookies. Parameters `ignore_discard` and `ignore_expires` cannot be set to *True*. This is not fully compatible with Python's [cookielib.FilecookieJar] but rather follows RFC 6265, at least on this specific aspect.
 
