@@ -10,39 +10,38 @@ Usage
 
 When instanciated without a `filename`, it places the file `python-cookies.sqlite` in the home directory of the user (e.g. `~/python-cookies.sqlite`).
 
-```
-    from sqlitecookiejar import SQLiteCookieJar
-    
-    jar = SQLiteCookieJar()     # the cookies will be stored in ~/python-cookies.sqlite
-    jar.load()                  # load all the cookies from the file into the jar
-    
-    # Do stuff stuff with the cookies. You can eat them if you want.
-    
-    jar.save()                  # this will save all the cookies present in your jar
+```python
+from sqlitecookiejar import SQLiteCookieJar
+
+jar = SQLiteCookieJar()     # the cookies will be stored in ~/python-cookies.sqlite
+jar.load()                  # load all the cookies from the file into the jar
+
+# Do stuff stuff with the cookies. You can eat them if you want.
+
+jar.save()                  # this will save all the cookies present in your jar
 ```
 
 The module works like a charm with Kenneth Reitz' [requests].
 
-```
-    from sqlitecookiejar import SQLiteCookieJar
-    from requests import Session
-    
-    path_to_jar = "/home/user/web/cookies/new_jar.sqlite"
-    
-    # set up a session with a brand new jar
-    s = Session()
-    s.cookies = SQLiteCookieJar(filename=path_to_jar)
-    s.cookies.load()            # empty
-    
-    s.get("http://cookie-giving-url.com")   
-    
-    # now, you have cookies in your jar, you can save them
-    s.cookies.save()
-    
-    
-    jar = SQLiteCookieJar(filename=path_to_jar)
-    jar.load()                  # contains the cookies given by cookie-giving-url.com
-                                # could be reused in another session
+```python
+from sqlitecookiejar import SQLiteCookieJar
+from requests import Session
+
+path_to_jar = "/home/user/web/cookies/new_jar.sqlite"
+
+# set up a session with a brand new jar
+s = Session()
+s.cookies = SQLiteCookieJar(filename=path_to_jar)
+s.cookies.load()            # empty
+
+s.get("http://cookie-giving-url.com")   
+
+# now, you have cookies in your jar, you can save them
+s.cookies.save()
+
+jar = SQLiteCookieJar(filename=path_to_jar)
+jar.load()                  # contains the cookies given by cookie-giving-url.com
+                            # could be reused in another session
 ```
 
 
