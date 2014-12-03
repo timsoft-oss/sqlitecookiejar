@@ -89,7 +89,7 @@ class SQLiteCookieJar(FileCookieJar):
                 con.execute("DELETE FROM cookie WHERE expiry < ?", (time.time(),))
         except sqlite3.DatabaseError, e:
             self.logger.error("Could not flush expired cookies")
-            self.logger.error("Exception was : %s" % e)
+            self.logger.error("Exception was : %s - %s" % (type(e).__name__, e))
 
 
 
@@ -159,7 +159,7 @@ class SQLiteCookieJar(FileCookieJar):
                                                                                     cookie.value
                                                                                )
                 )
-            self.logger.error("Exception was : %s" % e)
+            self.logger.error("Exception was : %s - %s" % (type(e).__name__, e))
             return False
 
 
@@ -304,4 +304,4 @@ class SQLiteCookieJar(FileCookieJar):
 
         except sqlite3.DatabaseError, e:
             self.logger.error("Sanity checks failed : could not access database")
-            self.logger.error("Exception was : %s" % e)
+            self.logger.error("Exception was : %s - %s" % (type(e).__name__, e))
