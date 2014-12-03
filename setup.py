@@ -6,7 +6,7 @@ setup(
     name="sqlitecookiejar",
     description='FileCookieJar using SQLite files for persistence',
     py_modules=['sqlitecookiejar'],
-    version='1.0.1',
+    version='1.0.2',
     long_description=__doc__,
     zip_safe=False,
     author_email='dgarnier@timsoft.com',
