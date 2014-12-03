@@ -213,7 +213,7 @@ class SQLiteCookieJar(FileCookieJar):
 
         except sqlite3.DatabaseError, e:
             self.logger.error("Loading cookies failed : could not access database")
-            self.logger.error("Exception was : %s" % e)
+            self.logger.error("Exception was : %s - %s" % (type(e).__name__, e))
 
 
     def _check_save_load_params(self, filename, ignore_discard, ignore_expires):
