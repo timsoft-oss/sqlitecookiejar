@@ -171,36 +171,34 @@ class SQLiteCookieJar(FileCookieJar):
         Implementation of the _really_load method. Basically, it just loads
         everything in the database, and maps it to cookies
         """
-        con = sqlite3.connect(self.filename)
-        con.row_factory = sqlite3.Row
-        cursor = con.cursor()
-        res = cursor.execute("SELECT * from cookie").fetchall()
+        try:
+            with sqlite3.connect(self.filename) as con:
+                res = con.execute("SELECT * from cookie").fetchall()
 
-        for cookie in res:
+                for cookie in res:
 
-            initial_dot = cookie["domain"].startswith(".")
-            c = Cookie( 0, cookie["name"], cookie["value"],
-                        None, False,
-                        cookie["domain"], initial_dot, initial_dot,
-                        cookie["path"], cookie["path"]!="/",
-                        cookie["secure"],
-                        cookie["expiry"],
-                        False,
-                        None,
-                        None,
-                        {}
-                       )
+                    initial_dot = cookie["domain"].startswith(".")
+                    c = Cookie( 0, cookie["name"], cookie["value"],
+                                None, False,
+                                cookie["domain"], initial_dot, initial_dot,
+                                cookie["path"], cookie["path"]!="/",
+                                cookie["secure"],
+                                cookie["expiry"],
+                                False,
+                                None,
+                                None,
+                                {}
+                               )
 
-            self.logger.info(
-                "LOADED cookie [domain: %s , name : %s, value: %s]" % (c.domain, c.name, c.value)
-            )
+                    self.logger.info(
+                        "LOADED cookie [domain: %s , name : %s, value: %s]" % (c.domain, c.name, c.value)
+                    )
 
-            if not c.is_expired(time.time()):
-                self.set_cookie(c)
+                    if not c.is_expired(time.time()):
+                        self.set_cookie(c)
 
-        cursor.close()
-        con.commit()
-        con.close()
+        except sqlite3.DatabaseError:
+            self.logger.error("Loading cookies failed : could not access database", exc_info=True)
 
 
     def _check_save_load_params(self, filename, ignore_discard, ignore_expires):
