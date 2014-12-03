@@ -173,6 +173,7 @@ class SQLiteCookieJar(FileCookieJar):
         """
         try:
             with sqlite3.connect(self.filename) as con:
+                con.row_factory = sqlite3.Row
                 res = con.execute("SELECT * from cookie").fetchall()
 
                 for cookie in res:
