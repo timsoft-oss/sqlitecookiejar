@@ -34,13 +34,14 @@ class SQLiteCookieJar(FileCookieJar):
 
     :param str filename:    The complete path to the CookieJar.
                             Defaults to HOME_FOLDER/python-cookies.sqlite
+    :param float timeout:   Timeout on the connexion (defaults to 0.5)
     :param logger:          The logger used to log errors, infos, etc.
                             Defaults to a basic ERROR stdout logger.
     :type logger:           `logging.Logger`
 
     """
 
-    def __init__(self, logger=None, *args, **kwargs):
+    def __init__(self, timeout=0.5, logger=None, *args, **kwargs):
         FileCookieJar.__init__(self, *args, **kwargs)
 
         if logger is None:
@@ -52,6 +53,7 @@ class SQLiteCookieJar(FileCookieJar):
         else:
             self.logger = logger
 
+        self.timeout = timeout
 
         if self.filename is None:
             self.filename = os.path.join(os.path.expanduser("~"), "python-cookies.sqlite")
@@ -70,7 +72,9 @@ class SQLiteCookieJar(FileCookieJar):
         self._check_save_load_params(filename, ignore_discard, ignore_expires)
 
         for cookie in self:
-            self._save_cookie(cookie)
+            if not self._save_cookie(cookie):
+                # If save failed, stop trying
+                break
 
 
     def _flush(self):
@@ -81,7 +85,7 @@ class SQLiteCookieJar(FileCookieJar):
         Used before and after loading cookies from/to the database.
         """
         try:
-            with sqlite3.connect(self.filename) as con:
+            with sqlite3.connect(self.filename, self.timeout) as con:
                 con.execute("DELETE FROM cookie WHERE expiry < ?", (time.time(),))
         except sqlite3.DatabaseError:
             self.logger.error("Could not flush expired cookies", exc_info=True)
@@ -101,13 +105,16 @@ class SQLiteCookieJar(FileCookieJar):
 
         Exit if the cookie is not fresh.
 
-        :param cookie: The cookie to save.
+        :param cookie:  The cookie to save.
+
+        :return bool:   Returns `True` if saved was possible, `False` if
+                        saving failed
         """
         _now = time.time()
         if cookie is None or cookie.expires is None or cookie.expires < _now:
-            return
+            return True
         try:
-            with sqlite3.connect(self.filename) as con:
+            with sqlite3.connect(self.filename, self.timeout) as con:
 
                 self.logger.info(
                     "SAVING cookie [domain: %s , name : %s, value: %s]" % (cookie.domain, cookie.name, cookie.value)
@@ -141,6 +148,8 @@ class SQLiteCookieJar(FileCookieJar):
                             cookie.secure
                         )
                     )
+
+                return True
         except sqlite3.DatabaseError:
             self.logger.error(
                 "Could not save cookie [domain: %s , name : %s, value: %s]" % (cookie.domain,
@@ -148,6 +157,7 @@ class SQLiteCookieJar(FileCookieJar):
                                                                                cookie.value),
                 exc_info=True
             )
+            return False
 
 
     def load(self, filename=None, ignore_discard=False, ignore_expires=False):
@@ -172,7 +182,7 @@ class SQLiteCookieJar(FileCookieJar):
         everything in the database, and maps it to cookies
         """
         try:
-            with sqlite3.connect(self.filename) as con:
+            with sqlite3.connect(self.filename, self.timeout) as con:
                 con.row_factory = sqlite3.Row
                 res = con.execute("SELECT * from cookie").fetchall()
 
@@ -243,7 +253,7 @@ class SQLiteCookieJar(FileCookieJar):
         raise a DatabaseError.
         """
         try:
-            with sqlite3.connect(self.filename) as con:
+            with sqlite3.connect(self.filename, self.timeout) as con:
                 res = con.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
 
                 if len(res) == 0:
