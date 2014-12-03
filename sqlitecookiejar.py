@@ -87,8 +87,10 @@ class SQLiteCookieJar(FileCookieJar):
         try:
             with sqlite3.connect(self.filename, self.timeout) as con:
                 con.execute("DELETE FROM cookie WHERE expiry < ?", (time.time(),))
-        except sqlite3.DatabaseError:
-            self.logger.error("Could not flush expired cookies", exc_info=True)
+        except sqlite3.DatabaseError, e:
+            self.logger.error("Could not flush expired cookies")
+            self.logger.error("Exception was : %s" % e)
+
 
 
     def _save_cookie(self, cookie):
@@ -150,13 +152,14 @@ class SQLiteCookieJar(FileCookieJar):
                     )
 
                 return True
-        except sqlite3.DatabaseError:
+        except sqlite3.DatabaseError, e:
             self.logger.error(
-                "Could not save cookie [domain: %s , name : %s, value: %s]" % (cookie.domain,
-                                                                               cookie.name,
-                                                                               cookie.value),
-                exc_info=True
-            )
+                "Could not save cookie [domain: %s , name : %s, value: %s]." % (    cookie.domain,
+                                                                                    cookie.name,
+                                                                                    cookie.value
+                                                                               )
+                )
+            self.logger.error("Exception was : %s" % e)
             return False
 
 
@@ -208,8 +211,9 @@ class SQLiteCookieJar(FileCookieJar):
                     if not c.is_expired(time.time()):
                         self.set_cookie(c)
 
-        except sqlite3.DatabaseError:
-            self.logger.error("Loading cookies failed : could not access database", exc_info=True)
+        except sqlite3.DatabaseError, e:
+            self.logger.error("Loading cookies failed : could not access database")
+            self.logger.error("Exception was : %s" % e)
 
 
     def _check_save_load_params(self, filename, ignore_discard, ignore_expires):
@@ -298,5 +302,6 @@ class SQLiteCookieJar(FileCookieJar):
                     raise AttributeError("The specified database has more than one table. "
                                          "Please provide a valid database.")
 
-        except sqlite3.DatabaseError:
-            self.logger.error("Sanity checks failed : could not access database", exc_info=True)
+        except sqlite3.DatabaseError, e:
+            self.logger.error("Sanity checks failed : could not access database")
+            self.logger.error("Exception was : %s" % e)
